@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import logo from "@/assets/logo-rio-piranhas.png";
@@ -65,16 +65,17 @@ function getUTMs() {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const HeroSection = () => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [formData, setFormData] = useState<Partial<FormData>>({});
+const [formData, setFormData] = useState<Partial<FormData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (iframeRef.current) {
-      const search = location.search || "?";
-      const vl = encodeURIComponent(location.href);
-      iframeRef.current.src = `https://scripts.converteai.net/0b256e8c-1ea0-49a1-a6c2-4aa9d6840568/players/69c5a62c7141a7eb85a249d5/v4/embed.html${search}&vl=${vl}`;
+    const SDK_SRC = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
+    if (!document.querySelector(`script[src="${SDK_SRC}"]`)) {
+      const script = document.createElement("script");
+      script.src = SDK_SRC;
+      script.async = true;
+      document.head.appendChild(script);
     }
   }, []);
 
@@ -210,17 +211,28 @@ const HeroSection = () => {
         >
           <div style={{ position: "relative", paddingTop: "56.25%" }}>
             <iframe
-              ref={iframeRef}
-              frameBorder={0}
+              id="ifr_69c6ee157141a7eb85a52811"
               allowFullScreen
               allow="autoplay; fullscreen"
               referrerPolicy="origin"
+              src="about:blank"
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
                 height: "100%",
+                border: "none",
+              }}
+              onLoad={(e) => {
+                const iframe = e.currentTarget;
+                if (iframe.src === "about:blank") {
+                  iframe.src =
+                    "https://scripts.converteai.net/0b256e8c-1ea0-49a1-a6c2-4aa9d6840568/players/69c6ee157141a7eb85a52811/v4/embed.html" +
+                    (location.search || "?") +
+                    "&vl=" +
+                    encodeURIComponent(location.href);
+                }
               }}
             />
           </div>
