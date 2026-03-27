@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 215 80% 14%;
+    --foreground: 0 0% 100%;
+
+    --card: 215 75% 18%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 215 75% 18%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 48 95% 55%;
+    --primary-foreground: 215 80% 14%;
+
+    --secondary: 215 65% 25%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 215 60% 22%;
+    --muted-foreground: 210 30% 70%;
+
+    --accent: 48 95% 55%;
+    --accent-foreground: 215 80% 14%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 50% 30%;
+    --input: 215 50% 30%;
+    --ring: 48 95% 55%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --cta-gradient: linear-gradient(135deg, hsl(48 95% 55%), hsl(42 100% 50%));
+    --hero-gradient: linear-gradient(180deg, hsl(215 80% 14%) 0%, hsl(215 75% 20%) 100%);
+    --badge-bg: 48 95% 55%;
+    --highlight: 48 100% 60%;
+    --blue-light: 215 60% 30%;
+    --blue-medium: 215 70% 22%;
+    --success: 145 65% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .text-shadow-bold {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
