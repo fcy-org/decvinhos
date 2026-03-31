@@ -111,7 +111,7 @@ const FormSection = () => {
       body: JSON.stringify({
         nome: data.nome,
         telefone: data.whatsapp,
-        documento: data.cnpj,
+        documento: data.cnpj.replace(/\D/g, ""),
         tipoDocumento: "cnpj",
         estado: data.estado,
         ...utms,
