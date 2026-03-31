@@ -4,6 +4,14 @@ import { z } from "zod";
 
 declare function fbq(...args: unknown[]): void;
 
+function formatarTelefone(value: string): string {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) {
+    return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+  }
+  return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
+
 function formatarCNPJ(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 14);
   return d
@@ -69,7 +77,10 @@ const FormSection = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name } = e.target;
-    const value = name === "cnpj" ? formatarCNPJ(e.target.value) : e.target.value;
+    const value =
+      name === "cnpj" ? formatarCNPJ(e.target.value)
+      : name === "whatsapp" ? formatarTelefone(e.target.value)
+      : e.target.value;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => {
@@ -175,10 +186,11 @@ const FormSection = () => {
               <input
                 type="tel"
                 name="whatsapp"
-                placeholder="WhatsApp com DDD"
+                placeholder="(00) 00000-0000"
                 className={inputClass}
                 onChange={handleChange}
-                maxLength={20}
+                value={formData.whatsapp ?? ""}
+                maxLength={15}
               />
               {errors.whatsapp && <p className="text-destructive text-sm mt-1">{errors.whatsapp}</p>}
             </div>

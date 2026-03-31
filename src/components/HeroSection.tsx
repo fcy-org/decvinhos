@@ -5,7 +5,15 @@ import logo from "@/assets/logo-rio-piranhas.png";
 
 declare function fbq(...args: unknown[]): void;
 
-// ─── CNPJ helpers ────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function formatarTelefone(value: string): string {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) {
+    return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+  }
+  return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
 
 function formatarCNPJ(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 14);
@@ -90,7 +98,9 @@ const HeroSection = () => {
   ) => {
     const { name } = e.target;
     const value =
-      name === "cnpj" ? formatarCNPJ(e.target.value) : e.target.value;
+      name === "cnpj" ? formatarCNPJ(e.target.value)
+      : name === "telefone" ? formatarTelefone(e.target.value)
+      : e.target.value;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => {
@@ -136,7 +146,7 @@ const HeroSection = () => {
       body: JSON.stringify({
         nome: data.nome,
         telefone: data.telefone,
-        documento: data.cnpj,
+        documento: data.cnpj.replace(/\D/g, ""),
         tipoDocumento: "cnpj",
         estado: data.estado,
         ...utms,
@@ -273,10 +283,11 @@ const HeroSection = () => {
               <input
                 type="tel"
                 name="telefone"
-                placeholder="WhatsApp com DDD"
+                placeholder="(00) 00000-0000"
                 className={inputClass}
                 onChange={handleChange}
-                maxLength={20}
+                value={formData.telefone ?? ""}
+                maxLength={15}
               />
               {errors.telefone && (
                 <p className="text-destructive text-sm mt-1">{errors.telefone}</p>
