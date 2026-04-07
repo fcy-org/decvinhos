@@ -45,7 +45,8 @@ function validarCNPJ(cnpj: string): boolean {
 
 const SHEETS_URL =
   "https://script.google.com/macros/s/AKfycbxu9fubUQJAekmnmEbvEfuXofW7PEAJ18unuUwyxz-oQ56rF513JSuTihPqq3we77F4Fg/exec";
-
+const CRM_URL = "https://salesyscrm.vercel.app/api/public/leads";
+const LEAD_CAPTURE_KEY = "braveo-principal-pixel-001";
 const WHATSAPP_NUMBER = "558694271798";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
@@ -68,6 +69,11 @@ function getUTMs() {
     utm_content: p.get("utm_content") || "",
     utm_term: p.get("utm_term") || "",
   };
+}
+
+function getFbclid() {
+  const p = new URLSearchParams(window.location.search);
+  return p.get("fbclid") || "";
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -136,7 +142,48 @@ const HeroSection = () => {
       // pixel não carregado em dev
     }
 
-    // 2. Envia para o Google Sheets
+    const fbclid = getFbclid();
+
+    // 2. Envia para o CRM
+    try {
+      const crmResponse = await fetch(CRM_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          leadCaptureKey: LEAD_CAPTURE_KEY,
+          name: data.nome,
+          phone: data.telefone.replace(/\D/g, ""),
+          document: data.cnpj.replace(/\D/g, ""),
+          documentType: "cnpj",
+          state: data.estado,
+          utm_source: utms.utm_source,
+          utm_medium: utms.utm_medium,
+          utm_campaign: utms.utm_campaign,
+          utm_content: utms.utm_content,
+          utm_term: utms.utm_term,
+          fbclid,
+        }),
+      });
+
+      const crmData = await crmResponse.json().catch(() => null);
+
+      if (!crmResponse.ok) {
+        console.error("CRM lead capture failed", {
+          status: crmResponse.status,
+          response: crmData,
+        });
+      } else if (crmData?.duplicate) {
+        console.warn("CRM lead already exists", crmData);
+      } else {
+        console.info("CRM lead created successfully", crmData);
+      }
+    } catch (error) {
+      console.error("CRM lead capture request error", error);
+    }
+
+    // 3. Envia para o Google Sheets
     // Usa mode: 'no-cors' + Content-Type: 'text/plain' para evitar preflight
     // (Apps Script não suporta preflight CORS)
     fetch(SHEETS_URL, {
@@ -149,13 +196,14 @@ const HeroSection = () => {
         documento: data.cnpj.replace(/\D/g, ""),
         tipoDocumento: "cnpj",
         estado: data.estado,
+        fbclid,
         ...utms,
       }),
     }).catch(() => {
       // falha silenciosa — não bloqueia o lead
     });
 
-    // 3. Redireciona para WhatsApp
+    // 4. Redireciona para WhatsApp
     const msg = encodeURIComponent(
       `🍷 *Quero conhecer a condição especial de vinhos!*\n\n` +
         `👤 Nome: ${data.nome}\n` +
